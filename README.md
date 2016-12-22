@@ -8,7 +8,7 @@ A demo that shows how to solve those issues of a fast-paced multiplayer game.
 
 - Client prediction
 
-- Server reconciliation (kinda bugly now, need optimization)
+- Server reconciliation
 
 - Adaptive interpolation delay
 

@@ -19,7 +19,7 @@ public class Demo : MonoBehaviour
     [SerializeField]
     public float Tickrate = 60;
     [SerializeField]
-    public bool EnablePrediction = false;
+    public bool EnableServerPrediction = false;
     [SerializeField]
     public bool EnableReconciliation = false;
     [SerializeField]
@@ -62,14 +62,31 @@ public class Demo : MonoBehaviour
         switch (target)
         {
             case Target.Client:
-                _client.SendMessage(methodName, value);
+                if (_client != null)
+                {
+                    _client.SendMessage(methodName, value);
+                }
                 break;
             case Target.Server:
-                _server.SendMessage(methodName, value);
+                if (_server != null)
+                {
+                    _server.SendMessage(methodName, value);
+                }
                 break;
             case Target.Proxy:
-                _proxy.SendMessage(methodName, value);
+                if (_proxy != null)
+                {
+                    _proxy.SendMessage(methodName, value);
+                }
                 break;
+        }
+    }
+
+    private void Update()
+    {
+        if (EnableReconciliation == true)
+        {
+            EnableServerPrediction = true;
         }
     }
 

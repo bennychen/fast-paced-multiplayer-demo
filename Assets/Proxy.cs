@@ -97,6 +97,11 @@ public class Proxy : MonoBehaviour
         }
         else
         {
+            if (snapshot.Timestamp < _currentLastKnownState.Timestamp)
+            {
+                return;
+            }
+
             if (_states.Count >= StateBufferSize)
             {
                 _states.RemoveAt(StateBufferSize - 1);

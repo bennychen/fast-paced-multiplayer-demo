@@ -3,12 +3,12 @@
 public class InputData
 {
     public int Input;
-    public int CommandID;
+    public int InputID;
 }
 
 public class Snapshot
 {
-    public int CommandID;
+    public int LastProcessedInput;
     public Vector3 Position;
     public Vector3 Velocity;
     public float Timestamp;

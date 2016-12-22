@@ -1,109 +1,129 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class Client : MonoBehaviour
 {
     public void Awake()
     {
         _demo = FindObjectOfType<Demo>();
-        _lastInput = 0;
     }
 
     public void FixedUpdate()
+    {
+        while (_states.Count > 0)
+        {
+            Snapshot state = _states[0];
+            _states.RemoveAt(0);
+
+            transform.position = new Vector3(state.Position.x, transform.position.y, state.Position.z);
+
+            if (_demo.EnableReconciliation)
+            {
+                int i = 0;
+                while (i < _pendingInputs.Count)
+                {
+                    var input = _pendingInputs[i];
+                    if (input.InputID <= state.LastProcessedInput)
+                    {
+                        // Already processed by server
+                        _pendingInputs.RemoveAt(i);
+                    }
+                    else
+                    {
+                        // Not processed by server
+                        ApplyHorizontalMove(input);
+                        i++;
+                    }
+                }
+            }
+            else
+            {
+                _pendingInputs.Clear();
+            }
+        }
+
+        InputData data = ProcessHorizontalInput();
+
+        if (_demo.EnableServerPrediction)
+        {
+            ApplyVerticalMove();
+            ApplyHorizontalMove(data);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            _demo.Call(Target.Server, "Jump");
+
+            if (_demo.EnableServerPrediction)
+            {
+                Jump();
+            }
+        }
+    }
+
+    public void SyncSnapshot(Snapshot s)
+    {
+        _states.Add(s);
+
+        if (!_demo.EnableServerPrediction)
+        {
+            transform.position = new Vector3(transform.position.x, s.Position.y, transform.position.z);
+        }
+    }
+
+    private InputData ProcessHorizontalInput()
     {
         int input = 0;
         if (Input.GetKey(KeyCode.LeftArrow))
         {
             input = -1;
         }
-          else if (Input.GetKey(KeyCode.RightArrow))
+        else if (Input.GetKey(KeyCode.RightArrow))
         {
             input = 1;
         }
-
-        if (input != _lastInput)
-        {
-            _lastInputCommandID++;
-            _demo.Call(Target.Server, "SyncInput", new InputData
-            {
-                Input = input,
-                CommandID = _lastInputCommandID,
-            });
-            _lastInput = input;
-        }
-
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            _demo.Call(Target.Server, "Jump");
-            
-            if (_demo.EnablePrediction)
-            {
-                PredictJump();
-            }
-        }
-
-        if (_demo.EnablePrediction)
-        {
-            PredictMove(input);
-        }
-    }
-
-    public void SyncSnapshot(Snapshot s)
-    {
-        if (_demo.EnablePrediction)
-        {
-            Vector3 position = transform.position;
-            if (Mathf.Abs(position.x - s.Position.x) > _demo.TolerantDistance)
-            {
-                if (_demo.EnableReconciliation)
-                {
-                    if (_lastInputCommandID == s.CommandID)
-                    {
-                        position.x = s.Position.x;
-                    }
-                }
-                else
-                {
-                    position.x = s.Position.x;
-                }
-            }
-            else if (_lastInput == 0)
-            {
-                if (_demo.EnableReconciliation)
-                {
-                    if (_lastInputCommandID == s.CommandID)
-                    {
-                        position.x = Mathf.Lerp(position.x, s.Position.x, 0.3f);
-                    }
-                }
-            }
-            transform.position = position;
-        }
         else
         {
-            transform.position = s.Position;
-            _velocity = s.Velocity;
+            return null;
         }
+
+        _currentInputID++;
+        InputData data = new InputData()
+        {
+            Input = input,
+            InputID = _currentInputID,
+        };
+        _demo.Call(Target.Server, "SyncInput", data);
+
+        _pendingInputs.Add(data);
+        return data;
     }
 
-    public void PredictMove(int input)
+    private void ApplyHorizontalMove(InputData data)
     {
-        _isGrounded = Physics.Raycast(new Ray(transform.position, Vector3.down), 1.05f, 
-            Fangtang.Layers.onlyIncluding(Fangtang.Layers.CLIENT));
-
-        if (_isGrounded && _velocity.y < 0)
+        if (data != null && data.Input != 0)
         {
-            _velocity = new Vector3(_velocity.x, 0, _velocity.z);
-        }
-
-        if (input != 0 )
-        {
-            _velocity.x = Mathf.Sign(input) * _demo.HorizontalSpeed;
+            _velocity.x = Mathf.Sign(data.Input) * _demo.HorizontalSpeed;
         }
         else
         {
             _velocity.x = 0;
         }
-        transform.position += _velocity * Time.fixedDeltaTime;
+        transform.position += Vector3.Scale(_velocity, new Vector3(1, 0, 1)) * Time.fixedDeltaTime;
+    }
+
+    private void ApplyVerticalMove()
+    {
+        _isGrounded = Physics.Raycast(new Ray(transform.position, Vector3.down), 1.1f,
+            Fangtang.Layers.onlyIncluding(Fangtang.Layers.CLIENT));
+
+        if (_isGrounded && _velocity.y < 0)
+        {
+            _velocity.y = 0;
+            transform.position = new Vector3(transform.position.x, 1f, transform.position.z);
+        }
+
+        transform.position += Vector3.up * _velocity.y * Time.fixedDeltaTime;
 
         if (!_isGrounded)
         {
@@ -111,7 +131,7 @@ public class Client : MonoBehaviour
         }
     }
 
-    public void PredictJump()
+    private void Jump()
     {
         if (_isGrounded)
         {
@@ -124,20 +144,11 @@ public class Client : MonoBehaviour
         return Time.fixedTime - (float)_demo.LatencyMilliseconds / 1000;
     }
 
-    private void OnGUI()
-    {
-        GUILayout.Label("I am Client");
-    }
-
-    private int _lastInput;
     private Demo _demo;
     private Vector3 _velocity;
+    private List<InputData> _pendingInputs = new List<InputData>();
+    private List<Snapshot> _states = new List<Snapshot>();
 
-    // For Prediction
     private bool _isGrounded;
-
-    // For Reconciliation
-    private int _lastInputCommandID = 0;
-    private int _needToReconcileID;
-    private float _targetX;
+    private int _currentInputID = 0;
 }
