@@ -14,7 +14,7 @@ A demo that shows how to solve those issues of a fast-paced multiplayer game.
 
 - Extrapolation
 
-- Delay simulation
+- Latency simulation
 
 ### Player colors
 
