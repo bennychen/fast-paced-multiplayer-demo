@@ -14,4 +14,4 @@ Below features are included in this demo.
 
 - Extrapolation
 
-- Delay simulation
+- Latency simulation
