@@ -1,0 +1,76 @@
+#### Use Shell style glob patterns for ignores.
+syntax: glob
+
+.reviewboardrc
+.DS_Store
+/*.sln
+/*.csproj
+/*.unityproj
+*.unitypackage
+
+# Sublime
+*.sublime-project
+*.sublime-workspace
+ 
+# Vim Files
+*.swp
+*.swo
+
+# Unity Server
+server/
+
+/build/
+/Library/
+/Temp/
+/Heapshots/
+
+/bin/
+/obj/
+/Assets/UnityVS/
+/Assets/UnityVS
+MobileProvisionCache.xml
+
+#ignore all bin/obj/Temp folders
+**/bin/
+**/obj/
+
+#### General Solution Ignores
+*.suo
+*.log
+*.manifest
+*.orig
+*.orig.meta
+*.user
+*.userprefs
+*.pidb
+*.Publish.xml
+*.DS_Store
+*.msi
+*.DotSettings
+*.vs
+
+## 2D Toolkit
+Assets/-tk2d
+Assets/Resources/tk2d/
+
+## U3DXT
+Assets/link.xml
+Assets/link.xml.meta
+
+## uEcho 
+.uEcho/Clones
+
+## vscode
+.vscode
+
+# Game resources data
+/sql/
+
+# Cache folder
+/Cache/
+
+#VS temporary file folder
+/.vs/
+
+# XcodeProject
+/XcodeProject
