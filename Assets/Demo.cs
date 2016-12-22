@@ -27,6 +27,12 @@ public class Demo : MonoBehaviour
     [SerializeField]
     [Range(0, 1000)]
     public int LatencyMilliseconds;
+    [SerializeField]
+    [Range(0, 1000)]
+    public int InterpolationDelayTime = 100; // in miliseconds
+    [SerializeField]
+    [Range(0, 1000)]
+    public int MaxExtrapolationTime = 500; // in miliseconds
 
     public float GetFrameTime()
     {

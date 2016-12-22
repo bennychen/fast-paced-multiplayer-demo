@@ -48,6 +48,14 @@ public class Server : MonoBehaviour
             Timestamp = Time.fixedTime,
             CommandID = _lastInputCommandID,
         });
+
+        _demo.Call(Target.Proxy, "SyncSnapshot", new Snapshot()
+        {
+            Position = transform.position,
+            Velocity = _velocity,
+            Timestamp = Time.fixedTime,
+            CommandID = _lastInputCommandID,
+        });
     }
 
     public void SyncInput(InputData data)

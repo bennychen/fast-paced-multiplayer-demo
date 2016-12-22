@@ -124,6 +124,11 @@ public class Client : MonoBehaviour
         return Time.fixedTime - (float)_demo.LatencyMilliseconds / 1000;
     }
 
+    private void OnGUI()
+    {
+        GUILayout.Label("I am Client");
+    }
+
     private int _lastInput;
     private Demo _demo;
     private Vector3 _velocity;
