@@ -9,31 +9,31 @@ public class Server : MonoBehaviour
 
     public void FixedUpdate()
     {
-        _isGrounded = Physics.Raycast(new Ray(transform.position, Vector3.down), 1.05f, 
-            Fangtang.Layers.onlyIncluding(Fangtang.Layers.SERVER));
-
-        if (_isGrounded && _velocity.y < 0)
-        {
-            _velocity.y = 0;
-        }
-
-        if (_input != 0 )
-        {
-            _velocity.x = Mathf.Sign(_input) * _demo.HorizontalSpeed;
-        }
-        else
-        {
-            _velocity.x = 0;
-        }
-        transform.position += _velocity * Time.fixedDeltaTime;
-
-        if (!_isGrounded)
-        {
-            _velocity.y -= _demo.Gravity * Time.fixedDeltaTime;
-        }
-
         if (Time.fixedTime - _lastTickTime > _demo.GetFrameTime())
         {
+            _isGrounded = Physics.Raycast(new Ray(transform.position, Vector3.down), 1.05f,
+                Fangtang.Layers.onlyIncluding(Fangtang.Layers.SERVER));
+
+            if (_isGrounded && _velocity.y < 0)
+            {
+                _velocity.y = 0;
+            }
+
+            if (_input != 0)
+            {
+                _velocity.x = Mathf.Sign(_input) * _demo.HorizontalSpeed;
+            }
+            else
+            {
+                _velocity.x = 0;
+            }
+            transform.position += _velocity * Time.fixedDeltaTime;
+
+            if (!_isGrounded)
+            {
+                _velocity.y -= _demo.Gravity * Time.fixedDeltaTime;
+            }
+
             Tick();
             _lastTickTime = Time.fixedTime;
         }
@@ -50,7 +50,7 @@ public class Server : MonoBehaviour
         });
     }
 
-    public void ChangeInput(InputData data)
+    public void SyncInput(InputData data)
     {
         _input = data.Input;
         _lastInputCommandID = data.CommandID;

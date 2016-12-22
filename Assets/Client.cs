@@ -23,7 +23,7 @@ public class Client : MonoBehaviour
         if (input != _lastInput)
         {
             _lastInputCommandID++;
-            _demo.Call(Target.Server, "ChangeInput", new InputData
+            _demo.Call(Target.Server, "SyncInput", new InputData
             {
                 Input = input,
                 CommandID = _lastInputCommandID,
@@ -64,6 +64,16 @@ public class Client : MonoBehaviour
                 else
                 {
                     position.x = s.Position.x;
+                }
+            }
+            else if (_lastInput == 0)
+            {
+                if (_demo.EnableReconciliation)
+                {
+                    if (_lastInputCommandID == s.CommandID)
+                    {
+                        position.x = Mathf.Lerp(position.x, s.Position.x, 0.3f);
+                    }
                 }
             }
             transform.position = position;
@@ -123,5 +133,6 @@ public class Client : MonoBehaviour
 
     // For Reconciliation
     private int _lastInputCommandID = 0;
-    private bool _needToReconcile;
+    private int _needToReconcileID;
+    private float _targetX;
 }
