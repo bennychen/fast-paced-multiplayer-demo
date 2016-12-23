@@ -17,7 +17,7 @@ public class Client : MonoBehaviour
 
             transform.position = new Vector3(state.Position.x, transform.position.y, state.Position.z);
 
-            if (_demo.EnableReconciliation)
+            if (_demo.EnableServerReconciliation)
             {
                 int i = 0;
                 while (i < _pendingInputs.Count)
@@ -44,7 +44,7 @@ public class Client : MonoBehaviour
 
         InputData data = ProcessHorizontalInput();
 
-        if (_demo.EnableServerPrediction)
+        if (_demo.EnableClientPrediction)
         {
             ApplyVerticalMove();
             ApplyHorizontalMove(data);
@@ -54,7 +54,7 @@ public class Client : MonoBehaviour
         {
             _demo.Call(Target.Server, "Jump");
 
-            if (_demo.EnableServerPrediction)
+            if (_demo.EnableClientPrediction)
             {
                 Jump();
             }
@@ -65,7 +65,7 @@ public class Client : MonoBehaviour
     {
         _states.Add(s);
 
-        if (!_demo.EnableServerPrediction)
+        if (!_demo.EnableClientPrediction)
         {
             transform.position = new Vector3(transform.position.x, s.Position.y, transform.position.z);
         }
@@ -82,11 +82,16 @@ public class Client : MonoBehaviour
         {
             input = 1;
         }
+        else if (_lastInput != 0)
+        {
+            input = 0; // we send an extra 0 when input just stops
+        }
         else
         {
             return null;
         }
 
+        _lastInput = input;
         _currentInputID++;
         InputData data = new InputData()
         {
@@ -149,6 +154,7 @@ public class Client : MonoBehaviour
     private List<InputData> _pendingInputs = new List<InputData>();
     private List<Snapshot> _states = new List<Snapshot>();
 
+    private int _lastInput;
     private bool _isGrounded;
     private int _currentInputID = 0;
 }

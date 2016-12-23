@@ -26,7 +26,6 @@ public class Server : MonoBehaviour
                 }
             }
 
-
             Tick();
             _lastTickTime = Time.fixedTime;
         }

@@ -14,7 +14,7 @@ public class Proxy : MonoBehaviour
         {
             return;
         }
-        else if (_states.Count == 1)
+        else if (_states.Count == 1 || !_demo.EnableProxyInterpolation)
         {
             transform.position = _currentLastKnownState.Position;
             return;
@@ -33,7 +33,7 @@ public class Proxy : MonoBehaviour
         }
         else if (interpolationStartTime < _currentLastKnownState.Timestamp + (float)_demo.MaxExtrapolationTime / 1000)
         {
-            DoExtrapolation();
+            DoExtrapolation(interpolationStartTime);
         }
     }
 
@@ -66,9 +66,10 @@ public class Proxy : MonoBehaviour
         }
     }
 
-    private void DoExtrapolation()
+    private void DoExtrapolation(float time)
     {
-        Vector3 targetPosition = transform.position + _currentLastKnownState.Velocity * Time.fixedDeltaTime;
+        Vector3 targetPosition = transform.position +
+            _currentLastKnownState.Velocity * (time - _currentLastKnownState.Timestamp);
 
         if (Vector3.Distance(targetPosition, _currentLastKnownState.Position) > _demo.TolerantDistance)
         {

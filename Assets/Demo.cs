@@ -19,11 +19,11 @@ public class Demo : MonoBehaviour
     [SerializeField]
     public float Tickrate = 60;
     [SerializeField]
-    public bool EnableServerPrediction = false;
+    public bool EnableClientPrediction = false;
     [SerializeField]
-    public bool EnableReconciliation = false;
+    public bool EnableServerReconciliation = false;
     [SerializeField]
-    public float TolerantDistance = 5;
+    public bool EnableProxyInterpolation = false;
     [SerializeField]
     [Range(0, 1000)]
     public int LatencyMilliseconds;
@@ -33,6 +33,8 @@ public class Demo : MonoBehaviour
     [SerializeField]
     [Range(0, 1000)]
     public int MaxExtrapolationTime = 500; // in miliseconds
+    [SerializeField]
+    public float TolerantDistance = 5;
 
     public float GetFrameTime()
     {
@@ -84,9 +86,9 @@ public class Demo : MonoBehaviour
 
     private void Update()
     {
-        if (EnableReconciliation == true)
+        if (EnableServerReconciliation == true)
         {
-            EnableServerPrediction = true;
+            EnableClientPrediction = true;
         }
     }
 
